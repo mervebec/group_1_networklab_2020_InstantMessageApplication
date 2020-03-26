@@ -17,6 +17,7 @@ public class InstantMessageApplication {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        // This comment made by Moaaz, Cheers! -- Bu yorum, Moaaz tarafından yapıldı, Yaşasın!
     }
     
 }
