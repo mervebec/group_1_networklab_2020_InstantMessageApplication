@@ -1,6 +1,8 @@
+/*
 
+burak ağabey için düzenleme
 
-
+*/
 
 package ınstantmessageapplication;
 
