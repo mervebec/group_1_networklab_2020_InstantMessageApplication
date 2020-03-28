@@ -7,7 +7,8 @@ package ınstantmessageapplication;
 
 /**
  *
- * @author BECERIKLI
+ * @author BECERIKLI 
+ * Biomedikalcilere Mühendislik ünvanı verilsin.
  */
 public class Client {
     

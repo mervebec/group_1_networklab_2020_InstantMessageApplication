@@ -30,7 +30,6 @@ public class SignUp extends javax.swing.JFrame {
         jFrame1 = new javax.swing.JFrame();
 
         jFrame1.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        jFrame1.setPreferredSize(new java.awt.Dimension(150, 250));
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
