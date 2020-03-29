@@ -12,7 +12,7 @@ package ınstantmessageapplication;
 public class SignIn extends javax.swing.JFrame {
 
     /**
-     * Creates new form Giris
+     * Creates new form SingIn
      */
     public SignIn() {
         initComponents();
