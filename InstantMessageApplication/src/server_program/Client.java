@@ -16,15 +16,17 @@ import java.util.ArrayList;
  * @author HP
  */
 public class Client  implements Serializable{
-    int telphone_no;
+    String username;
     String name;
     ArrayList <Client> history=new ArrayList<>();
-    boolean state;
+    String state;//it could be :null (while singing up) log-in (if client not siged-out ) log out (if client registered but signed-out)
     ObjectOutputStream  outputstream;
     ObjectInputStream   inputStream;
-    public Client(int telphone_no, String name) {
-        this.telphone_no = telphone_no;
+    String password;
+    public Client(String telphone_no, String name , String password) {
+        this.username = telphone_no;
         this.name = name;
+        this.password=password;
     }
     
  
