@@ -20,34 +20,34 @@ public class TCP_Server {
     private ServerSocket serverSocket;
     private javax.swing.JTextPane historyJTextPane;
     private Thread serverThread;
-    private ArrayList<Client> allClients = new ArrayList<>();
-    private ArrayList<Client> allClients_info = new ArrayList<>();
+    private final ArrayList<Client> allClients = new ArrayList<>();
 
     protected void creatClient(Client newclient, ObjectInputStream inputStream, ObjectOutputStream ouInputStream) throws IOException {
 
         boolean exsit = false;
-        for (Client client : allClients_info) {// check if server has this client by phone no which is the uniq about every client
-            if (client.telphone_no == newclient.telphone_no) {
+        for (Client client : allClients) {// check if server has this client by phone no which is the uniq about every client
+            if (client.username.equals(newclient.username)) {
                 exsit = true;
             }
         }
         if (!exsit) {
             newclient.inputStream = inputStream;
             newclient.outputstream = ouInputStream;
-            allClients_info.add(newclient);
+            newclient.state = "log-in";
+            allClients.add(newclient);
             newclient.outputstream.writeObject("Created");
 
         } else {
             newclient.outputstream = ouInputStream;
 
-            newclient.outputstream.writeObject("Not Created");
+            newclient.outputstream.writeObject("This username already exist!");
 
-             if (inputStream != null) {
-                        inputStream.close();
-                    }
-                    if (ouInputStream != null) {
-                        ouInputStream.close();
-                    }
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            if (ouInputStream != null) {
+                ouInputStream.close();
+            }
 //                   
         }
     }
@@ -122,6 +122,7 @@ public class TCP_Server {
 
         @Override
         public void run() {
+            writeToHistory("Thread has ben created for connected client : " + this.getName());
             writeToHistory("Bağlanan client için thread oluşturuldu : " + this.getName());
 
             try {
@@ -130,21 +131,24 @@ public class TCP_Server {
                 clientInput = new ObjectInputStream(clientSocket.getInputStream());
                 clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
                 Client client_info = (Client) clientInput.readObject();
-                creatClient(client_info, clientInput, clientOutput);
+                if (client_info.state == null) {
+                    creatClient(client_info, clientInput, clientOutput);
+                }
 
                 // client ismini mesaj olarak gönder
                 //clientOutput.writeObject("@id-" + this.getName());
                 Object mesaj;
                 // client mesaj gönderdiği sürece mesajı al
+                for (Client client : allClients) {
+                    if (client.outputstream == this.clientOutput) {
+                        writeToHistory( "Username: "+client.username+"  Name: "+client.name);
 
+                    }
+                }
                 while ((mesaj = clientInput.readObject()) != null) {
                     // client'in gönderdiği mesajı server ekranına yaz
                     writeToHistory(this.getName() + " : " + mesaj);
 
-                    // "son" mesajı iletişimi sonlandırır
-                    if (mesaj.equals("son")) {
-                        break;
-                    }
                 }
 
             } catch (IOException | ClassNotFoundException ex) {
@@ -152,7 +156,7 @@ public class TCP_Server {
             } finally {
                 try {
                     // client'ların tutulduğu listeden çıkart
-                //    allClients.remove(clientOutput);
+                    //    allClients.remove(clientOutput);
 
                     // bütün client'lara ayrılma mesajı gönder
                     // bütün streamleri ve soketleri kapat
