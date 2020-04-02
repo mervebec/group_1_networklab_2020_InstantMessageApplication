@@ -1,6 +1,5 @@
 package ınstantmessageapplication;
 
-
 /**
  *
  * @author BECERIKLI
