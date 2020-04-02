@@ -1,5 +1,6 @@
 package client_program;
 
+import java.awt.Color;
 import server_program.Client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,6 +10,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  * @file TCP_Client.java
@@ -16,25 +18,26 @@ import java.util.logging.Logger;
  * @author Muhammet Alkan
  */
 public class TCP_Client {
-    private final int serverPort=44444;
+
+    private final int serverPort = 44444;
     private Socket clientSocket;
     private ObjectInputStream clientInput;
     private ObjectOutputStream clientOutput;
     private javax.swing.JTextPane historyJTextPane;
+    private javax.swing.JFrame jFrame;
+
     private javax.swing.JLabel NewRegisterSatuJLabel;
     private Thread clientThread;
-            
-    
 
-    protected void start( InetAddress inetAddress , Client client, javax.swing.JLabel jLabelName) throws IOException {
+    protected void start(InetAddress inetAddress, Client client, javax.swing.JLabel jLabelName, javax.swing.JFrame frame) throws IOException {
         // client soketi oluşturma (ip + port numarası)
-        
+
         clientSocket = new Socket(inetAddress, serverPort);
         // client arayüzündeki history alanı, bütün olaylar buraya yazılacak
         //this.historyJTextPane = jTextPaneHistory;
         // to write the registration satute in case of creating exsit client .
         this.NewRegisterSatuJLabel = jLabelName;
-
+        jFrame = frame;
         // input  : client'a gelen mesajları okumak için
         // output : client'dan bağlı olduğu server'a mesaj göndermek için
         clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -94,12 +97,18 @@ public class TCP_Client {
                     }
 
                     // serverdan gelen mesajı arayüze yaz
+                    if (mesaj.equals("This username already exist!")) {
+                        NewRegisterSatuJLabel.setText(mesaj + "");
+                        
+                    }
+                    if (mesaj.equals("Created")) {
+                        NewRegisterSatuJLabel.setText("Done");
+                        NewRegisterSatuJLabel.setForeground(Color.green);
+                        JOptionPane.showMessageDialog(null, "Successfully singed-up !");
 
-                    // "son" mesajı iletişimi sonlandırır
-                    if (mesaj.equals("Not Created")) {
-                        System.out.println(mesaj);
-                         NewRegisterSatuJLabel.setText("This Number already exsit !");
-                        break;
+                        jFrame.setVisible(false);
+                        new Contact_UI().setVisible(true);
+
                     }
                 }
             } catch (IOException | ClassNotFoundException ex) {
