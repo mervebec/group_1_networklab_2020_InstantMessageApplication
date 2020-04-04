@@ -20,29 +20,41 @@ import javax.swing.JOptionPane;
 public class TCP_Client {
 
     private final int serverPort = 44444;
-    private Socket clientSocket;
-    private ObjectInputStream clientInput;
-    private ObjectOutputStream clientOutput;
+    private static Socket clientSocket;
+    private static ObjectInputStream clientInput;
+    private static ObjectOutputStream clientOutput;
     private javax.swing.JTextPane historyJTextPane;
-    private javax.swing.JFrame jFrame;
+    private static javax.swing.JFrame jFrame;
 
-    private javax.swing.JLabel NewRegisterSatuJLabel;
+    private static javax.swing.JLabel NewRegisterSatuJLabel;
     private Thread clientThread;
 
-    protected void start(InetAddress inetAddress, Client client, javax.swing.JLabel jLabelName, javax.swing.JFrame frame) throws IOException {
+    protected void sing_up_to_server(Client client, javax.swing.JLabel jLabelName, javax.swing.JFrame jframe) throws IOException {
+       this.NewRegisterSatuJLabel = jLabelName;
+        jFrame = jframe;  
+        sendMessage(client);// send the client you want to creat 
+ 
+        sendMessage("Creat Client");//say to server that you need to creat client
+
+
+    }
+
+    protected void log_in_to_server(Client client, javax.swing.JLabel jLabelName, javax.swing.JFrame jframe) throws IOException {
+
+    }
+
+    protected void start(InetAddress inetAddress) throws IOException {
         // client soketi oluşturma (ip + port numarası)
 
         clientSocket = new Socket(inetAddress, serverPort);
         // client arayüzündeki history alanı, bütün olaylar buraya yazılacak
         //this.historyJTextPane = jTextPaneHistory;
         // to write the registration satute in case of creating exsit client .
-        this.NewRegisterSatuJLabel = jLabelName;
-        jFrame = frame;
+
         // input  : client'a gelen mesajları okumak için
         // output : client'dan bağlı olduğu server'a mesaj göndermek için
         clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
         clientInput = new ObjectInputStream(clientSocket.getInputStream());
-        sendMessage(client);
 
         // server'ı sürekli dinlemek için Thread oluştur
         clientThread = new ListenThread();
@@ -90,24 +102,22 @@ public class TCP_Client {
                 Object mesaj;
                 // server mesaj gönderdiği sürece gelen mesajı al
                 while ((mesaj = clientInput.readObject()) != null) {
-                    // id mesajı kontrolü, id mesajı alınırsa name etiketini değiştirir 
-                    if (mesaj instanceof String && ((String) mesaj).contains("@id-")) {
-                        NewRegisterSatuJLabel.setText(((String) mesaj).substring(4));
-                        continue;
-                    }
 
                     // serverdan gelen mesajı arayüze yaz
-                    if (mesaj.equals("This username already exist!")) {
+                    if (mesaj.equals("This telefon already exist!")) {
+                        System.out.println(mesaj);
                         NewRegisterSatuJLabel.setText(mesaj + "");
-                        
+
                     }
                     if (mesaj.equals("Created")) {
+                                                System.out.println(mesaj);
+
                         NewRegisterSatuJLabel.setText("Done");
                         NewRegisterSatuJLabel.setForeground(Color.green);
                         JOptionPane.showMessageDialog(null, "Successfully singed-up !");
 
                         jFrame.setVisible(false);
-                        new Contact_UI().setVisible(true);
+                        new main_UI().setVisible(true);
 
                     }
                 }
