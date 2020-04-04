@@ -8,7 +8,8 @@ package client_program;
 import server_program.Client;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.regex.Pattern;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -73,6 +74,11 @@ public class SingUp_UI extends javax.swing.JFrame {
         jLabel4.setText("R-enter Password:");
 
         jToggleButton1_Back.setText("Back");
+        jToggleButton1_Back.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1_BackActionPerformed(evt);
+            }
+        });
 
         jLabel5.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 153, 153));
@@ -165,25 +171,24 @@ public class SingUp_UI extends javax.swing.JFrame {
 
     private void jButton1Sing_upActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1Sing_upActionPerformed
         try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            String userName = jTextField1PhnoeNo.getText();
+            long userName = Long.parseLong(jTextField1PhnoeNo.getText());
             String name = jTextField2Name.getText();
             boolean passMatches = true;
             String pass = String.valueOf(jPasswordField1.getPassword());
             if (!pass.equals(String.valueOf(jPasswordField2.getPassword()))) {
-              jLabel6_pass_warning.setText("Passwords doesn't match! !");
+                jLabel6_pass_warning.setText("Passwords doesn't match! !");
                 passMatches = false;
             }
-            Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
-            boolean valid = (userName != null) && pattern.matcher(userName).matches();
-            if (!valid) {
-                jLabel6_username_warrning.setText( "username must be only Letters and digits");
-
-            }
-            if (valid && passMatches) {
+//            Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
+//            boolean valid = (userName != null) && pattern.matcher(userName).matches();
+//            if (!valid) {
+//                jLabel6_username_warrning.setText( "username must be only Letters and digits");
+//
+//            }
+            if (passMatches) {
                 Client client = new Client(userName, name, pass);
                 TCP_Client tcp_client = new TCP_Client();
-                tcp_client.start(inetAddress, client, jLabel3_singUp_satuat, this);
+                tcp_client.sing_up_to_server(client, jLabel3_singUp_satuat, this);
             }
 
 //jLabel3_singUp_satuat
@@ -195,10 +200,17 @@ public class SingUp_UI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1Sing_upActionPerformed
 
+    private void jToggleButton1_BackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1_BackActionPerformed
+        this.setVisible(false);
+        new first_jframe().setVisible(true);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jToggleButton1_BackActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -222,11 +234,20 @@ public class SingUp_UI extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
-
+      
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SingUp_UI().setVisible(true);
+                try {
+                    new SingUp_UI().setVisible(true);
+                    InetAddress inetAddress = InetAddress.getLocalHost();
+                    
+                    TCP_Client client = new TCP_Client();
+                    client.start(inetAddress);
+                    System.out.println("started");
+                } catch (IOException ex) {
+                    Logger.getLogger(SingUp_UI.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
