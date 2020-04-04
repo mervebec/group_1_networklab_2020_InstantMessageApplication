@@ -22,33 +22,25 @@ public class TCP_Server {
     private Thread serverThread;
     private final ArrayList<Client> allClients = new ArrayList<>();
 
-    protected void creatClient(Client newclient, ObjectInputStream inputStream, ObjectOutputStream ouInputStream) throws IOException {
+    protected void creatClient(Client newclient) throws IOException {
 
         boolean exsit = false;
         for (Client client : allClients) {// check if server has this client by phone no which is the uniq about every client
-            if (client.username.equals(newclient.username)) {
+            if (client.telefon == newclient.telefon) {
                 exsit = true;
             }
         }
         if (!exsit) {
-            newclient.inputStream = inputStream;
-            newclient.outputstream = ouInputStream;
+
             newclient.state = "log-in";
             allClients.add(newclient);
             newclient.outputstream.writeObject("Created");
 
         } else {
-            newclient.outputstream = ouInputStream;
 
-            newclient.outputstream.writeObject("This username already exist!");
+            newclient.outputstream.writeObject("This telefon already exist!");
+                System.out.println("var");
 
-            if (inputStream != null) {
-                inputStream.close();
-            }
-            if (ouInputStream != null) {
-                ouInputStream.close();
-            }
-//                   
         }
     }
 
@@ -130,25 +122,38 @@ public class TCP_Server {
                 // output : server'a bağlı olan client'a mesaj göndermek için
                 clientInput = new ObjectInputStream(clientSocket.getInputStream());
                 clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
-                Client client_info = (Client) clientInput.readObject();
-                if (client_info.state == null) {
-                    creatClient(client_info, clientInput, clientOutput);
-                }
 
                 // client ismini mesaj olarak gönder
                 //clientOutput.writeObject("@id-" + this.getName());
                 Object mesaj;
                 // client mesaj gönderdiği sürece mesajı al
+
+                Client client_info1 = null;
+                System.out.println("mesaj instanceof Client");
+
+                while ((mesaj = clientInput.readObject()) != null) {
+                    if (mesaj instanceof Client) {
+                        System.out.println(mesaj instanceof Client);
+                        Client client_info = (Client)mesaj;
+                        client_info.outputstream = clientOutput;
+                        client_info.inputStream = clientInput;
+                        client_info1 = client_info;
+                    }
+                    // client'in gönderdiği mesajı server ekranına yaz  
+
+                    if (mesaj.equals("Creat Client")) {// when sing-up button is pressed the client will send to the server this msg 
+                        System.out.println(client_info1.name);
+                        creatClient(client_info1);
+                    }
+                    writeToHistory(" : " + mesaj);
+
+                }
+
                 for (Client client : allClients) {
                     if (client.outputstream == this.clientOutput) {
-                        writeToHistory( "Username: "+client.username+"  Name: "+client.name);
+                        writeToHistory("Username: " + client.telefon + "  Name: " + client.name);
 
                     }
-                }
-                while ((mesaj = clientInput.readObject()) != null) {
-                    // client'in gönderdiği mesajı server ekranına yaz
-                    writeToHistory(this.getName() + " : " + mesaj);
-
                 }
 
             } catch (IOException | ClassNotFoundException ex) {
